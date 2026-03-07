@@ -12,6 +12,11 @@ const productSchema = new mongoose.Schema({
   availableQuantity: { type: Number, required: true },
   minimumOrder: { type: Number, default: 1 },
   
+  // New fields
+  quality: { type: String, enum: ["Standard", "Premium", "Organic"], default: "Standard" },
+  imageUrl: { type: String, default: "" },
+  isOrganic: { type: Boolean, default: false },
+  
   // Location (inherited from farmer but can override)
   village: { type: String },
   district: { type: String },

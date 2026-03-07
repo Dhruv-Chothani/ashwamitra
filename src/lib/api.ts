@@ -52,7 +52,7 @@ export const authApi = {
 export const productsApi = {
   getAll: (params?: Record<string, string>) => {
     const query = params ? "?" + new URLSearchParams(params).toString() : "";
-    return apiFetch<any[]>(`/products${query}`);
+    return apiFetch<{ products: any[] }>(`/products${query}`);
   },
 
   getById: (id: string) => apiFetch<any>(`/products/${id}`),

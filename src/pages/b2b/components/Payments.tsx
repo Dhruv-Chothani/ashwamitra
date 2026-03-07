@@ -1,145 +1,193 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useBusinessPayments } from "@/hooks/useApi";
+import { CreditCard, Wallet, CheckCircle, Clock, AlertCircle, Loader2, TrendingUp } from "lucide-react";
 
-interface Payment {
-  id: string;
-  product: string;
-  farmer: string;
-  buyer: string;
-  amount: string;
-  status: "Pending" | "Completed";
-  date: string;
-  method: string;
-}
+type Payment = {
+  _id: string;
+  orderId: string;
+  amount: number;
+  status: "pending" | "completed" | "failed";
+  paymentMethod: string;
+  createdAt: string;
+  updatedAt: string;
+  transactionId?: string;
+};
 
-const paymentsData: Payment[] = [
-  {
-    id: "PAY-101",
-    product: "Tomatoes",
-    farmer: "Ramesh Kumar",
-    buyer: "FreshMart",
-    amount: "₹4500",
-    status: "Pending",
-    date: "12 Feb 2026",
-    method: "UPI",
-  },
-  {
-    id: "PAY-102",
-    product: "Potatoes",
-    farmer: "Suresh Patel",
-    buyer: "City Grocery",
-    amount: "₹6200",
-    status: "Completed",
-    date: "10 Feb 2026",
-    method: "Bank Transfer",
-  },
-  {
-    id: "PAY-103",
-    product: "Onions",
-    farmer: "Mahesh Yadav",
-    buyer: "Green Basket",
-    amount: "₹3900",
-    status: "Pending",
-    date: "9 Feb 2026",
-    method: "UPI",
-  },
-];
+const Payments: React.FC = () => {
+  const { data: payments, isLoading, error } = useBusinessPayments();
+  const [filter, setFilter] = useState<string>("All");
 
-const Payments = () => {
-  const [filter, setFilter] = useState("All");
-  const navigate = useNavigate();
-
-  const filtered =
-    filter === "All"
-      ? paymentsData
-      : paymentsData.filter((p) => p.status === filter);
-
-  const handleViewPayment = (paymentId: string) => {
-    navigate(`/payments/${paymentId}`);
+  const getStatusBadge = (status: string) => {
+    const styles: Record<string, string> = {
+      pending: "bg-yellow-100 text-yellow-700 border border-yellow-300",
+      completed: "bg-green-100 text-green-700 border border-green-300",
+      failed: "bg-red-100 text-red-700 border border-red-300",
+    };
+    
+    const icons: Record<string, React.ReactNode> = {
+      pending: <Clock className="w-3 h-3" />,
+      completed: <CheckCircle className="w-3 h-3" />,
+      failed: <AlertCircle className="w-3 h-3" />,
+    };
+    
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full font-medium ${styles[status] || styles.pending}`}>
+        {icons[status]}
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
   };
 
+  const getPaymentIcon = (method: string) => {
+    const icons: Record<string, React.ReactNode> = {
+      "upi": <Wallet className="w-4 h-4" />,
+      "bank_transfer": <CreditCard className="w-4 h-4" />,
+      "cod": <CreditCard className="w-4 h-4" />,
+    };
+    return icons[method.toLowerCase()] || <CreditCard className="w-4 h-4" />;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <span className="ml-3 text-gray-600">Loading payments...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to load payments</h3>
+          <p className="text-gray-500">Please check your connection and try again.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!payments || payments.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Payments Yet</h3>
+          <p className="text-gray-500">You haven't made any payments yet.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const filteredPayments = filter === "All" ? payments : payments.filter((p) => p.status === filter);
+
+  // Calculate totals
+  const totalPaid = payments.filter(p => p.status === "completed").reduce((sum, p) => sum + p.amount, 0);
+  const pendingPayments = payments.filter(p => p.status === "pending").reduce((sum, p) => sum + p.amount, 0);
+
   return (
-    <div className="space-y-8">
-      {/* HEADER */}
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl p-6 shadow-lg flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Payments</h1>
-          <p className="text-purple-100 text-sm">
-            Track settlements and transactions
-          </p>
+    <div className="space-y-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-gray-500 text-sm">Total Paid</span>
+            <TrendingUp className="w-5 h-5 text-green-600" />
+          </div>
+          <div className="text-2xl font-bold text-green-600">₹{totalPaid.toLocaleString()}</div>
         </div>
-        <div className="text-sm bg-white/20 px-4 py-2 rounded-lg">
-          Secure Payment Ledger
+        
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-gray-500 text-sm">Pending</span>
+            <Clock className="w-5 h-5 text-yellow-600" />
+          </div>
+          <div className="text-2xl font-bold text-yellow-600">₹{pendingPayments.toLocaleString()}</div>
+        </div>
+        
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-gray-500 text-sm">Total Transactions</span>
+            <CreditCard className="w-5 h-5 text-blue-600" />
+          </div>
+          <div className="text-2xl font-bold text-blue-600">{payments.length}</div>
         </div>
       </div>
 
-      {/* FILTER TABS */}
-      <div className="flex gap-3 flex-wrap">
-        {["All", "Pending", "Completed"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setFilter(tab)}
-            className={`px-5 py-2 rounded-full text-sm font-medium transition ${
-              filter === tab
-                ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow"
-                : "bg-white border border-gray-200 hover:bg-gray-50"
-            }`}
+      {/* Filter Tabs */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900">Payment History</h2>
+        <div className="flex gap-2">
+          {["All", "pending", "completed", "failed"].map((status) => (
+            <button
+              key={status}
+              onClick={() => setFilter(status)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                filter === status
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Payments List */}
+      <div className="grid gap-4">
+        {filteredPayments.map((payment) => (
+          <div
+            key={payment._id}
+            className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
           >
-            {tab}
-          </button>
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Payment #{payment._id.slice(-8)}
+                  </h3>
+                  {getStatusBadge(payment.status)}
+                </div>
+                
+                <div className="space-y-1 text-sm">
+                  <div className="text-gray-600">
+                    Order ID: #{payment.orderId.slice(-8)}
+                  </div>
+                  <div className="text-gray-600">
+                    Method: <span className="font-medium">{payment.paymentMethod.replace('_', ' ').toUpperCase()}</span>
+                  </div>
+                  {payment.transactionId && (
+                    <div className="text-gray-600">
+                      Transaction ID: {payment.transactionId}
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="text-right">
+                <div className="text-2xl font-bold text-blue-600 mb-1">
+                  ₹{payment.amount.toLocaleString()}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {new Date(payment.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  })}
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                {getPaymentIcon(payment.paymentMethod)}
+                <span>{payment.paymentMethod.replace('_', ' ').toUpperCase()}</span>
+              </div>
+            </div>
+          </div>
         ))}
-      </div>
-
-      {/* TABLE */}
-      <div className="bg-white border border-gray-100 rounded-2xl shadow-md overflow-x-auto">
-        <table className="w-full min-w-[700px]">
-          <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">ID</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Product</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Farmer</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Buyer</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Amount</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((p) => (
-              <tr
-                key={p.id}
-                className="border-t hover:bg-gray-50 transition"
-              >
-                <td className="px-6 py-4 font-medium">{p.id}</td>
-                <td className="px-6 py-4">{p.product}</td>
-                <td className="px-6 py-4">{p.farmer}</td>
-                <td className="px-6 py-4">{p.buyer}</td>
-                <td className="px-6 py-4 font-semibold text-green-700">
-                  {p.amount}
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      p.status === "Completed"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}
-                  >
-                    {p.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <button
-                    onClick={() => handleViewPayment(p.id)}
-                    className="px-4 py-1 text-xs font-medium text-white rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90"
-                  >
-                    View Details
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
     </div>
   );

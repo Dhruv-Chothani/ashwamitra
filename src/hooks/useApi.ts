@@ -11,7 +11,13 @@ export const useCurrentUser = () =>
 
 // ==================== PRODUCTS ====================
 export const useProducts = (params?: Record<string, string>) =>
-  useQuery({ queryKey: ["products", params], queryFn: () => productsApi.getAll(params) });
+  useQuery({ 
+    queryKey: ["products", params], 
+    queryFn: async () => {
+      const response = await productsApi.getAll(params);
+      return response.products || [];
+    }
+  });
 
 export const useMyProducts = () =>
   useQuery({ queryKey: ["myProducts"], queryFn: productsApi.getMyProducts });

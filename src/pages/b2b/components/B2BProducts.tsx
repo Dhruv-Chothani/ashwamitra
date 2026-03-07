@@ -1,93 +1,27 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, MapPin, ShoppingCart, Package, Plus, Minus, Filter } from "lucide-react";
+import { Search, MapPin, ShoppingCart, Package, Plus, Minus, Filter, Loader2, User } from "lucide-react";
+import { useProducts, useCreateOrder } from "@/hooks/useApi";
 
-// Mock B2B products data
-const b2bProducts = [
-  {
-    id: "B2B001",
-    name: "Premium Basmati Rice",
-    farmer: "Ramesh Kumar",
-    location: "Nalgonda",
-    category: "Grains",
-    price: 85,
-    marketPrice: 95,
-    stock: 5000,
-    image: "🍚",
-    minOrder: 100,
-    description: "Premium quality basmati rice, aged for 12 months for perfect aroma and taste.",
-  },
-  {
-    id: "B2B002",
-    name: "Fresh Tomatoes",
-    farmer: "Suresh Patel",
-    location: "Warangal",
-    category: "Vegetables",
-    price: 35,
-    marketPrice: 45,
-    stock: 2000,
-    image: "🍅",
-    minOrder: 50,
-    description: "Fresh, juicy tomatoes grown organically without pesticides.",
-  },
-  {
-    id: "B2B003",
-    name: "Organic Turmeric",
-    farmer: "Lakshmi Bai",
-    location: "Nizamabad",
-    category: "Spices",
-    price: 95,
-    marketPrice: 120,
-    stock: 800,
-    image: "🟡",
-    minOrder: 25,
-    description: "Pure organic turmeric powder with high curcumin content.",
-  },
-  {
-    id: "B2B004",
-    name: "Fresh Onions",
-    farmer: "Govind Rao",
-    location: "Adilabad",
-    category: "Vegetables",
-    price: 28,
-    marketPrice: 35,
-    stock: 3000,
-    image: "🧅",
-    minOrder: 75,
-    description: "Fresh red onions with excellent storage quality.",
-  },
-  {
-    id: "B2B005",
-    name: "Green Chilies",
-    farmer: "Priya Sharma",
-    location: "Karimnagar",
-    category: "Vegetables",
-    price: 42,
-    marketPrice: 55,
-    stock: 1500,
-    image: "🌶️",
-    minOrder: 30,
-    description: "Spicy green chilies, perfect for commercial kitchens.",
-  },
-  {
-    id: "B2B006",
-    name: "Wheat Flour",
-    farmer: "Mahesh Reddy",
-    location: "Medak",
-    category: "Grains",
-    price: 32,
-    marketPrice: 40,
-    stock: 4000,
-    image: "🌾",
-    minOrder: 200,
-    description: "Premium wheat flour, finely milled for perfect texture.",
-  },
-];
+const categories = ["All", "Grains", "Vegetables", "Spices", "Fruits", "Other"];
 
-const categories = ["All", "Grains", "Vegetables", "Spices", "Fruits"];
+function qualityBadge(quality: string) {
+  const styles: Record<string, string> = {
+    Standard: "bg-gray-100 text-gray-700 border border-gray-300",
+    Premium: "bg-purple-100 text-purple-700 border border-purple-300",
+    Organic: "bg-green-100 text-green-700 border border-green-300",
+  };
+  return (
+    <span className={`px-2 py-1 text-xs rounded-md font-medium ${styles[quality] || styles["Standard"]}`}>
+      {quality}
+    </span>
+  );
+}
 
 const B2BProducts: React.FC = () => {
   const navigate = useNavigate();
+  const { data: products, isLoading, error } = useProducts();
+  const createOrder = useCreateOrder();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState<Map<string, number>>(new Map());
@@ -97,13 +31,40 @@ const B2BProducts: React.FC = () => {
   const addToCart = (product: any, quantity: number = 1) => {
     setCart((prev) => {
       const next = new Map(prev);
-      const currentQty = next.get(product.id) || 0;
-      next.set(product.id, currentQty + quantity);
+      const currentQty = next.get(product._id) || 0;
+      next.set(product._id, currentQty + quantity);
       return next;
     });
     setAddedProduct(product.name);
     setShowCartNotification(true);
     setTimeout(() => setShowCartNotification(false), 3000);
+  };
+
+  const placeOrder = async (product: any) => {
+    const quantity = cart.get(product._id) || product.minimumOrder;
+    try {
+      await createOrder.mutateAsync({
+        items: [{
+          productId: product._id,
+          productName: product.name,
+          quantity: quantity,
+          pricePerUnit: product.pricePerUnit,
+          total: product.pricePerUnit * quantity
+        }],
+        totalAmount: product.pricePerUnit * quantity,
+        deliveryAddress: "Business Address - To be updated",
+        paymentMethod: "bank_transfer"
+      });
+      
+      // Clear cart for this product
+      setCart(prev => {
+        const newCart = new Map(prev);
+        newCart.delete(product._id);
+        return newCart;
+      });
+    } catch (error) {
+      console.error("Order failed:", error);
+    }
   };
 
   const getCartItemsCount = () => {
@@ -114,15 +75,37 @@ const B2BProducts: React.FC = () => {
     return count;
   };
 
-  const filteredProducts = b2bProducts.filter((product) => {
+  const filteredProducts = (products && Array.isArray(products)) ? products.filter((product) => {
     const matchCategory =
       selectedCategory === "All" || product.category === selectedCategory;
 
     const matchSearch =
-      product.name.toLowerCase().includes(search.toLowerCase());
+      product.name.toLowerCase().includes(search.toLowerCase()) ||
+      product.description?.toLowerCase().includes(search.toLowerCase());
 
-    return matchCategory && matchSearch;
-  });
+    return matchCategory && matchSearch && product.isAvailable !== false;
+  }) : [];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <span className="ml-3 text-gray-600">Loading farmer products...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to load products</h3>
+          <p className="text-gray-500">Please check your connection and try again.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50">
@@ -139,8 +122,8 @@ const B2BProducts: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-bold text-gray-900">B2B Products</h1>
-              <span className="text-sm text-gray-500">Bulk agricultural produce</span>
+              <h1 className="text-2xl font-bold text-gray-900">Farmer Products</h1>
+              <span className="text-sm text-gray-500">Fresh agricultural produce</span>
             </div>
             <button
               onClick={() => navigate("/b2b/cart")}
@@ -166,7 +149,7 @@ const B2BProducts: React.FC = () => {
             <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search farmer products..."
               className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -196,18 +179,26 @@ const B2BProducts: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.map((product) => {
-            const discount = Math.round(
-              ((product.marketPrice - product.price) / product.marketPrice) * 100
-            );
+            const discount = product.marketPrice > 0 ? Math.round(
+              ((product.marketPrice - product.pricePerUnit) / product.marketPrice) * 100
+            ) : 0;
 
             return (
               <div
-                key={product.id}
+                key={product._id}
                 className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
               >
                 {/* Product Image */}
                 <div className="w-full h-40 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center text-5xl mb-4">
-                  {product.image}
+                  {product.imageUrl ? (
+                    <img 
+                      src={product.imageUrl} 
+                      alt={product.name} 
+                      className="w-full h-full object-cover rounded-xl"
+                    />
+                  ) : (
+                    <span>🌾</span>
+                  )}
                 </div>
 
                 {/* Product Info */}
@@ -215,69 +206,86 @@ const B2BProducts: React.FC = () => {
                   {product.name}
                 </h3>
                 
-                <p className="text-sm text-gray-500 mb-1">
-                  Farmer: {product.farmer}
+                <p className="text-sm text-gray-500 mb-1 flex items-center gap-1">
+                  <User className="w-3 h-3" />
+                  Farmer: {product.farmerName || "Verified Farmer"}
                 </p>
                 
                 <p className="text-sm text-gray-500 mb-3 flex items-center gap-1">
                   <MapPin className="w-3 h-3" />
-                  {product.location}
+                  {product.village}, {product.district}, {product.state}
                 </p>
+
+                {/* Quality and Organic */}
+                <div className="flex gap-2 mb-3">
+                  {product.quality && qualityBadge(product.quality)}
+                  {product.isOrganic && (
+                    <span className="px-2 py-1 text-xs rounded-md font-medium bg-green-100 text-green-700 border border-green-300">
+                      Organic
+                    </span>
+                  )}
+                </div>
+
+                {/* Description */}
+                {product.description && (
+                  <p className="text-xs text-gray-600 mb-3 line-clamp-2">
+                    {product.description}
+                  </p>
+                )}
 
                 {/* Price and Discount */}
                 <div className="flex items-center gap-2 mb-3">
                   <span className="font-bold text-blue-700 text-lg">
-                    ₹{product.price}/kg
+                    ₹{product.pricePerUnit}/{product.unit}
                   </span>
-                  <span className="text-sm line-through text-gray-400">
-                    ₹{product.marketPrice}
-                  </span>
-                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                    {discount}% OFF
-                  </span>
+                  {product.marketPrice > 0 && product.marketPrice !== product.pricePerUnit && (
+                    <>
+                      <span className="text-sm line-through text-gray-400">
+                        ₹{product.marketPrice}
+                      </span>
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                        {discount}% OFF
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 {/* Stock and Min Order */}
                 <div className="flex justify-between text-sm text-gray-600 mb-4">
-                  <span>Stock: {product.stock}kg</span>
-                  <span>Min Order: {product.minOrder}kg</span>
+                  <span>Stock: {product.availableQuantity}{product.unit}</span>
+                  <span>Min Order: {product.minimumOrder}{product.unit}</span>
                 </div>
-
-                {/* Description */}
-                <p className="text-xs text-gray-600 mb-4 line-clamp-2">
-                  {product.description}
-                </p>
 
                 {/* Add to Cart Section */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between bg-gray-50 rounded-lg p-2">
-                    <span className="text-sm font-medium text-gray-700">Quantity (kg):</span>
+                    <span className="text-sm font-medium text-gray-700">Quantity ({product.unit}):</span>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => {
-                          const currentQty = cart.get(product.id) || 0;
-                          if (currentQty > product.minOrder) {
+                          const currentQty = cart.get(product._id) || 0;
+                          if (currentQty > product.minimumOrder) {
                             setCart(prev => {
                               const newCart = new Map(prev);
-                              newCart.set(product.id, currentQty - 1);
+                              newCart.set(product._id, currentQty - 1);
                               return newCart;
                             });
                           }
                         }}
                         className="w-6 h-6 rounded-full bg-red-100 hover:bg-red-200 text-red-600 flex items-center justify-center text-xs disabled:opacity-50"
-                        disabled={(cart.get(product.id) || 0) <= product.minOrder}
+                        disabled={(cart.get(product._id) || 0) <= product.minimumOrder}
                       >
                         <Minus className="w-3 h-3" />
                       </button>
                       <span className="w-12 text-center font-semibold text-sm">
-                        {cart.get(product.id) || product.minOrder}
+                        {cart.get(product._id) || product.minimumOrder}
                       </span>
                       <button
                         onClick={() => {
-                          const currentQty = cart.get(product.id) || 0;
+                          const currentQty = cart.get(product._id) || 0;
                           setCart(prev => {
                             const newCart = new Map(prev);
-                            newCart.set(product.id, currentQty + 1);
+                            newCart.set(product._id, currentQty + 1);
                             return newCart;
                           });
                         }}
@@ -289,10 +297,11 @@ const B2BProducts: React.FC = () => {
                   </div>
 
                   <button
-                    onClick={() => addToCart(product, cart.get(product.id) || product.minOrder)}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold hover:scale-105 transition"
+                    onClick={() => placeOrder(product)}
+                    disabled={createOrder.isPending}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold hover:scale-105 transition disabled:opacity-50"
                   >
-                    Add to Cart
+                    {createOrder.isPending ? "Placing Order..." : "Place Order"}
                   </button>
                 </div>
               </div>
@@ -300,13 +309,23 @@ const B2BProducts: React.FC = () => {
           })}
         </div>
 
-        {filteredProducts.length === 0 && (
+        {filteredProducts.length === 0 && !isLoading && (
           <div className="text-center py-12">
             <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
               <Package className="w-10 h-10 text-gray-400" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+            <p className="text-gray-500">No farmer products available matching your criteria.</p>
+          </div>
+        )}
+
+        {products && products.length === 0 && !isLoading && (
+          <div className="text-center py-12">
+            <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+              <Package className="w-10 h-10 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Products Available</h3>
+            <p className="text-gray-500">Farmers haven't added any products yet.</p>
           </div>
         )}
       </div>

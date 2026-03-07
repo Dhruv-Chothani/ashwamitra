@@ -4,24 +4,34 @@ import WalletCheckoutIntegration from "../../../components/wallet/WalletCheckout
 import { WalletUtils } from "../../../utils/walletUtils";
 
 type CartItem = {
-  id: string;
+  _id: string;
   name: string;
-  farmer: string;
-  price: number;
+  farmerName?: string;
+  village?: string;
+  pricePerUnit: number;
   quantity: number;
   unit: string;
+  imageUrl?: string;
+  quality?: string;
+  isOrganic?: boolean;
 };
 
 type Product = {
-  id: string;
+  _id: string;
   name: string;
-  farmer: string;
-  location: string;
+  farmerName?: string;
+  village?: string;
+  district?: string;
+  state?: string;
   category: string;
-  price: number;
-  marketPrice: number;
-  stock: number;
-  image: string;
+  pricePerUnit: number;
+  marketPrice?: number;
+  availableQuantity: number;
+  minimumOrder: number;
+  unit: string;
+  imageUrl?: string;
+  quality?: string;
+  isOrganic?: boolean;
 };
 
 type CartComponentProps = {
@@ -78,20 +88,24 @@ const CartComponent: React.FC<CartComponentProps> = ({ cart, products, onUpdateC
 
   // Convert cart Map to cart items array
   const cartItems: CartItem[] = Array.from(cart.entries()).map(([productId, quantity]) => {
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => p._id === productId);
     if (!product) return null;
     return {
-      id: productId,
+      _id: productId,
       name: product.name,
-      farmer: product.farmer,
-      price: product.price,
+      farmerName: product.farmerName || "Local Farmer",
+      village: product.village,
+      pricePerUnit: product.pricePerUnit,
       quantity: quantity,
-      unit: "kg" // Default unit, you can make this dynamic
+      unit: product.unit || "kg",
+      imageUrl: product.imageUrl,
+      quality: product.quality,
+      isOrganic: product.isOrganic
     };
   }).filter(Boolean) as CartItem[];
 
   const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + item.pricePerUnit * item.quantity,
     0
   );
 
@@ -254,30 +268,34 @@ const CartComponent: React.FC<CartComponentProps> = ({ cart, products, onUpdateC
         <>
           {cartItems.map((item) => (
             <div
-              key={item.id}
+              key={item._id}
               className="bg-white border border-green-100 rounded-xl p-4 hover:shadow-md transition-shadow"
             >
               <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
-                    <Package className="w-6 h-6 text-green-600" />
+                    {item.imageUrl ? (
+                      <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover rounded-xl" />
+                    ) : (
+                      <Package className="w-6 h-6 text-green-600" />
+                    )}
                   </div>
                   <div>
                     <p className="font-semibold text-green-800">
                       {item.name}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Farmer: {item.farmer}
+                      Farmer: {item.farmerName}
                     </p>
                     <p className="text-xs text-gray-400">
-                      ₹{item.price}/{item.unit}
+                      ₹{item.pricePerUnit}/{item.unit}
                     </p>
                   </div>
                 </div>
 
                 <div className="text-right">
                   <p className="font-bold text-green-700">
-                    ₹{item.price * item.quantity}
+                    ₹{item.pricePerUnit * item.quantity}
                   </p>
                   <p className="text-xs text-gray-500">
                     {item.quantity} {item.unit}
@@ -290,7 +308,7 @@ const CartComponent: React.FC<CartComponentProps> = ({ cart, products, onUpdateC
                 <span className="text-sm font-medium text-gray-700">Quantity:</span>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => decreaseQuantity(item.id)}
+                    onClick={() => decreaseQuantity(item._id)}
                     className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 text-red-600 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={item.quantity <= 1}
                   >
@@ -300,7 +318,7 @@ const CartComponent: React.FC<CartComponentProps> = ({ cart, products, onUpdateC
                     {item.quantity}
                   </span>
                   <button
-                    onClick={() => increaseQuantity(item.id)}
+                    onClick={() => increaseQuantity(item._id)}
                     className="w-8 h-8 rounded-full bg-green-100 hover:bg-green-200 text-green-600 flex items-center justify-center transition-colors"
                   >
                     <Plus className="w-4 h-4" />

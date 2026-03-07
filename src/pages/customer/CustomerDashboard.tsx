@@ -13,14 +13,30 @@ import {
   User,
   LogOut,
   CheckCircle,
+  Loader2,
+  Star,
+  Truck,
 } from "lucide-react";
-import { products } from "@/data/Products";
+import { useProducts, useCreateOrder } from "@/hooks/useApi";
 import CartComponent from "./components/CartComponent";
 import OrdersComponent from "./components/OrdersComponent";
 import ProfileComponent from "./components/ProfileComponent";
 import WhatsAppButton from "@/components/common/WhatsAppButton";
 
-const categories = ["All", "Vegetables", "Fruits", "Grains"];
+const categories = ["All", "Vegetables", "Fruits", "Grains", "Other"];
+
+function qualityBadge(quality: string) {
+  const styles: Record<string, string> = {
+    Standard: "bg-gray-100 text-gray-700 border border-gray-300",
+    Premium: "bg-purple-100 text-purple-700 border border-purple-300",
+    Organic: "bg-green-100 text-green-700 border border-green-300",
+  };
+  return (
+    <span className={`px-2 py-1 text-xs rounded-md font-medium ${styles[quality] || styles["Standard"]}`}>
+      {quality}
+    </span>
+  );
+}
 
 /* ============================= */
 /* MOCK ORDERS (Backend later)   */
@@ -78,16 +94,49 @@ export default function CustomerDashboard() {
   const [addedProduct, setAddedProduct] = useState<string>("");
   const [showOrderSuccess, setShowOrderSuccess] = useState(false);
 
+  const { data: products, isLoading, error } = useProducts();
+  const createOrder = useCreateOrder();
+
   const addToCart = (product: any, quantity: number = 1) => {
     setCart((prev) => {
       const next = new Map(prev);
-      const currentQty = next.get(product.id) || 0;
-      next.set(product.id, currentQty + quantity);
+      const currentQty = next.get(product._id) || 0;
+      next.set(product._id, currentQty + quantity);
       return next;
     });
     setAddedProduct(product.name);
     setShowCartNotification(true);
     setTimeout(() => setShowCartNotification(false), 3000);
+  };
+
+  const placeOrder = async (product: any) => {
+    const quantity = cart.get(product._id) || 1;
+    try {
+      await createOrder.mutateAsync({
+        items: [{
+          productId: product._id,
+          productName: product.name,
+          quantity: quantity,
+          pricePerUnit: product.pricePerUnit,
+          total: product.pricePerUnit * quantity
+        }],
+        totalAmount: product.pricePerUnit * quantity,
+        deliveryAddress: "Customer Address - To be updated",
+        paymentMethod: "cod"
+      });
+      
+      // Clear cart for this product
+      setCart(prev => {
+        const newCart = new Map(prev);
+        newCart.delete(product._id);
+        return newCart;
+      });
+      
+      setShowOrderSuccess(true);
+      setTimeout(() => setShowOrderSuccess(false), 5000);
+    } catch (error) {
+      console.error("Order failed:", error);
+    }
   };
 
   const getCartItemsCount = () => {
@@ -97,6 +146,38 @@ export default function CustomerDashboard() {
     });
     return count;
   };
+
+  const filteredProducts = (products && Array.isArray(products)) ? products.filter((product) => {
+    const matchCategory =
+      selectedCategory === "All" || product.category === selectedCategory;
+
+    const matchSearch =
+      product.name.toLowerCase().includes(search.toLowerCase()) ||
+      product.description?.toLowerCase().includes(search.toLowerCase());
+
+    return matchCategory && matchSearch && product.isAvailable !== false;
+  }) : [];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-green-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+        <span className="ml-3 text-gray-600">Loading fresh products...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-green-50 flex items-center justify-center">
+        <div className="text-center">
+          <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to load products</h3>
+          <p className="text-gray-500">Please check your connection and try again.</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleLogout = () => {
     // Clear cart and logout
@@ -125,16 +206,6 @@ export default function CustomerDashboard() {
       setActiveTab("profile");
     }
   };
-
-  const filteredProducts = products.filter((product) => {
-    const matchCategory =
-      selectedCategory === "All" || product.category === selectedCategory;
-
-    const matchSearch =
-      product.name.toLowerCase().includes(search.toLowerCase());
-
-    return matchCategory && matchSearch;
-  });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-green-50">
@@ -285,50 +356,98 @@ export default function CustomerDashboard() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {filteredProducts.map((product) => {
-                const discount = Math.round(
-                  ((product.marketPrice - product.price) /
+                const discount = product.marketPrice > 0 ? Math.round(
+                  ((product.marketPrice - product.pricePerUnit) /
                     product.marketPrice) *
                     100
-                );
+                ) : 0;
 
                 return (
                   <div
-                    key={product.id}
+                    key={product._id}
                     className="bg-white rounded-2xl border border-green-100 p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
                   >
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-36 w-full object-cover rounded-xl"
-                    />
+                    <div className="h-36 w-full bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl flex items-center justify-center text-5xl mb-3">
+                      {product.imageUrl ? (
+                        <img 
+                          src={product.imageUrl} 
+                          alt={product.name} 
+                          className="h-full w-full object-cover rounded-xl"
+                        />
+                      ) : (
+                        <span>🌾</span>
+                      )}
+                    </div>
 
-                    <h3 className="mt-3 text-sm font-semibold text-green-800">
+                    <h3 className="text-sm font-semibold text-green-800 mb-1">
                       {product.name}
                     </h3>
 
-                    <p className="text-xs text-gray-500">
-                      {product.farmer}
+                    <p className="text-xs text-gray-500 mb-2">
+                      {product.farmerName || "Local Farmer"} • {product.village}
                     </p>
 
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="font-bold text-green-700 text-sm">
-                        ₹{product.price}
-                      </span>
+                    {/* Quality and Organic */}
+                    <div className="flex gap-1 mb-2">
+                      {product.quality && qualityBadge(product.quality)}
+                      {product.isOrganic && (
+                        <span className="px-2 py-1 text-xs rounded-md font-medium bg-green-100 text-green-700 border border-green-300">
+                          Organic
+                        </span>
+                      )}
+                    </div>
 
-                      <span className="text-xs line-through text-gray-400">
-                        ₹{product.marketPrice}
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="font-bold text-green-700 text-sm">
+                        ₹{product.pricePerUnit}/{product.unit}
                       </span>
+                      {product.marketPrice > 0 && product.marketPrice !== product.pricePerUnit && (
+                        <span className="text-xs line-through text-gray-400">
+                          ₹{product.marketPrice}
+                        </span>
+                      )}
+                      {discount > 0 && (
+                        <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">
+                          {discount}% OFF
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex justify-between text-xs text-gray-600 mb-3">
+                      <span>Stock: {product.availableQuantity}{product.unit}</span>
+                      <span>Min: {product.minimumOrder}{product.unit}</span>
                     </div>
 
                     <button 
-                      onClick={() => handleOrder(product)}
-                      className="w-full mt-3 py-2 rounded-full bg-gradient-to-r from-green-600 to-green-700 text-white text-xs font-semibold hover:scale-105 transition"
+                      onClick={() => placeOrder(product)}
+                      disabled={createOrder.isPending}
+                      className="w-full py-2 rounded-full bg-gradient-to-r from-green-600 to-green-700 text-white text-xs font-semibold hover:scale-105 transition disabled:opacity-50"
                     >
-                      Order Now
+                      {createOrder.isPending ? "Placing Order..." : "Order Now"}
                     </button>
                   </div>
                 );
               })}
+
+              {filteredProducts.length === 0 && !isLoading && (
+                <div className="col-span-full text-center py-12">
+                  <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                    <Package className="w-10 h-10 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No products found</h3>
+                  <p className="text-gray-500">No farmer products available matching your criteria.</p>
+                </div>
+              )}
+
+              {products && products.length === 0 && !isLoading && (
+                <div className="col-span-full text-center py-12">
+                  <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                    <Package className="w-10 h-10 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Products Available</h3>
+                  <p className="text-gray-500">Farmers haven't added any products yet.</p>
+                </div>
+              )}
             </div>
           </div>
         )}
