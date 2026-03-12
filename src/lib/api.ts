@@ -1,7 +1,10 @@
 const configuredApiBase = import.meta.env.VITE_API_BASE_URL as string | undefined;
 const configuredApiHost = import.meta.env.VITE_API_URL as string | undefined;
+const LIVE_API_URL = "https://ashwamitra-backend.onrender.com/api";
+const LOCAL_API_URL = "http://localhost:5000/api";
+
 const API_BASE_URL = configuredApiBase
-  || (configuredApiHost ? `${configuredApiHost.replace(/\/$/, "")}/api` : "https://ashwamitra-backend.onrender.com/api");
+  || (configuredApiHost ? `${configuredApiHost.replace(/\/$/, "")}/api` : LIVE_API_URL);
 
 export const getToken = () => localStorage.getItem("token");
 export const setToken = (token: string) => localStorage.setItem("token", token);
@@ -15,10 +18,28 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
   };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || data.message || "API Error");
-  return data;
+  // Try live API first
+  try {
+    const res = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || data.message || "API Error");
+    return data;
+  } catch (error) {
+    // If live API fails and we're not already using localhost, try localhost
+    if (API_BASE_URL === LIVE_API_URL) {
+      console.warn("Live API failed, trying localhost:", error);
+      try {
+        const localRes = await fetch(`${LOCAL_API_URL}${endpoint}`, { ...options, headers });
+        const localData = await localRes.json();
+        if (!localRes.ok) throw new Error(localData.error || localData.message || "API Error");
+        return localData;
+      } catch (localError) {
+        console.error("Both live and localhost APIs failed:", localError);
+        throw error; // Throw the original error
+      }
+    }
+    throw error;
+  }
 }
 
 // ==================== AUTH ====================
