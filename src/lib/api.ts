@@ -18,27 +18,32 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
   };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  // Try live API first
+  // Always try live API first
+  const liveUrl = `${LIVE_API_URL}${endpoint}`;
+  const localUrl = `${LOCAL_API_URL}${endpoint}`;
+  
+  console.log(`🌐 Trying live API: ${liveUrl}`);
+  
   try {
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+    const res = await fetch(liveUrl, { ...options, headers });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || data.message || "API Error");
+    console.log(`✅ Live API success: ${liveUrl}`);
     return data;
   } catch (error) {
-    // If live API fails and we're not already using localhost, try localhost
-    if (API_BASE_URL === LIVE_API_URL) {
-      console.warn("Live API failed, trying localhost:", error);
-      try {
-        const localRes = await fetch(`${LOCAL_API_URL}${endpoint}`, { ...options, headers });
-        const localData = await localRes.json();
-        if (!localRes.ok) throw new Error(localData.error || localData.message || "API Error");
-        return localData;
-      } catch (localError) {
-        console.error("Both live and localhost APIs failed:", localError);
-        throw error; // Throw the original error
-      }
+    console.warn(`❌ Live API failed: ${liveUrl}`, error);
+    console.log(`🔄 Trying localhost: ${localUrl}`);
+    
+    try {
+      const localRes = await fetch(localUrl, { ...options, headers });
+      const localData = await localRes.json();
+      if (!localRes.ok) throw new Error(localData.error || localData.message || "API Error");
+      console.log(`✅ Localhost success: ${localUrl}`);
+      return localData;
+    } catch (localError) {
+      console.error(`❌ Both APIs failed. Live: ${liveUrl}, Local: ${localUrl}`);
+      throw error; // Throw the original error
     }
-    throw error;
   }
 }
 

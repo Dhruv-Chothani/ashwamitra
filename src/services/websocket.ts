@@ -14,20 +14,21 @@ class WebSocketService {
       return;
     }
 
-    // Try live WebSocket first
+    // Always try live WebSocket first
+    console.log(`🌐 Trying live WebSocket: ${this.LIVE_WS_URL}`);
+    
     try {
-      await this._connectToUrl(this.wsUrl, userId, userRole);
+      await this._connectToUrl(this.LIVE_WS_URL, userId, userRole);
+      console.log(`✅ Live WebSocket success: ${this.LIVE_WS_URL}`);
     } catch (error) {
-      // If live WebSocket fails and we're not already using localhost, try localhost
-      if (this.wsUrl === this.LIVE_WS_URL) {
-        console.warn("Live WebSocket failed, trying localhost:", error);
-        try {
-          await this._connectToUrl(this.LOCAL_WS_URL, userId, userRole);
-        } catch (localError) {
-          console.error("Both live and localhost WebSockets failed:", localError);
-          throw error;
-        }
-      } else {
+      console.warn(`❌ Live WebSocket failed: ${this.LIVE_WS_URL}`, error);
+      console.log(`🔄 Trying localhost: ${this.LOCAL_WS_URL}`);
+      
+      try {
+        await this._connectToUrl(this.LOCAL_WS_URL, userId, userRole);
+        console.log(`✅ Localhost WebSocket success: ${this.LOCAL_WS_URL}`);
+      } catch (localError) {
+        console.error(`❌ Both WebSockets failed. Live: ${this.LIVE_WS_URL}, Local: ${this.LOCAL_WS_URL}`);
         throw error;
       }
     }
