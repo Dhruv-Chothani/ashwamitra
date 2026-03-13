@@ -134,19 +134,19 @@ const FarmerRegistration: React.FC = () => {
 
   if (showSuccessMessage) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-green-50 to-emerald-50">
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-green-50 to-emerald-50">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center">
-            <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
-              <AlertCircle className="w-10 h-10 text-green-600" />
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 text-center">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 sm:mb-6">
+              <AlertCircle className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Registration Submitted!</h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Registration Submitted!</h2>
+            <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
               Your farmer account is under admin approval. You will be notified once your account is approved.
             </p>
-            <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+            <div className="bg-green-50 rounded-xl p-3 sm:p-4 border border-green-200">
               <p className="text-sm font-medium text-green-800 mb-2">Next Steps:</p>
-              <ul className="text-sm text-green-700 space-y-1 text-left">
+              <ul className="text-xs sm:text-sm text-green-700 space-y-1 text-left">
                 <li>• Admin will review your documents</li>
                 <li>• Approval typically takes 24-48 hours</li>
                 <li>• You'll receive an email confirmation</li>
@@ -160,33 +160,33 @@ const FarmerRegistration: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 py-4 sm:py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <button 
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-6 transition-colors mx-auto"
+            className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 hover:text-gray-900 mb-4 sm:mb-6 transition-colors mx-auto"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </button>
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-3xl mx-auto mb-4">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-2xl sm:text-3xl mx-auto mb-3 sm:mb-4">
             🌾
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Farmer Registration</h1>
-          <p className="text-gray-600">Register as a farmer to sell your produce directly to businesses</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Farmer Registration</h1>
+          <p className="text-sm sm:text-base text-gray-600">Register as a farmer to sell your produce directly to businesses</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           {/* Personal Details Card */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <User className="w-5 h-5 text-green-600" />
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+              <User className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
               Personal Details
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Farmer Name *</Label>
                 <Input

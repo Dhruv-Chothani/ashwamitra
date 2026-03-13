@@ -101,122 +101,122 @@ const ContactUs: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Success Toast */}
       {showSuccess && (
-        <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 animate-in slide-in-from-right-5">
+        <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-lg flex items-center gap-3 animate-in slide-in-from-right-5 max-w-sm">
           <CheckCircle2 className="w-5 h-5" />
-          <span className="font-medium">Message sent successfully! We'll get back to you soon.</span>
+          <span className="font-medium text-sm">Message sent successfully! We'll get back to you soon.</span>
         </div>
       )}
 
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Contact Us</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Contact Us</h1>
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto px-4">
             Have questions about our platform? Want to partner with us? We'd love to hear from you!
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Contact Information */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <MessageSquare className="w-6 h-6 text-blue-500" />
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border border-gray-200">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
                 Get in Touch
               </h2>
               
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-6 h-6 text-blue-600" />
+              <div className="space-y-4 sm:space-y-6">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">Email</p>
-                    <p className="text-gray-600">support@aswamithra.com</p>
-                    <p className="text-sm text-gray-500">We respond within 24 hours</p>
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base">Email</p>
+                    <p className="text-gray-600 text-sm sm:text-base">support@aswamithra.com</p>
+                    <p className="text-xs sm:text-sm text-gray-500">We respond within 24 hours</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-6 h-6 text-green-600" />
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">Phone</p>
-                    <p className="text-gray-600">+91 800-123-4567</p>
-                    <p className="text-sm text-gray-500">Mon-Sat, 9AM-6PM</p>
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base">Phone</p>
+                    <p className="text-gray-600 text-sm sm:text-base">+91 800-123-4567</p>
+                    <p className="text-xs sm:text-sm text-gray-500">Mon-Sat, 9AM-6PM</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-6 h-6 text-purple-600" />
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">Address</p>
-                    <p className="text-gray-600">ASWAMITHRA Operations Center</p>
-                    <p className="text-gray-600">123 Agricultural Park</p>
-                    <p className="text-gray-600">Hyderabad, Telangana 500001</p>
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base">Address</p>
+                    <p className="text-gray-600 text-sm sm:text-base">ASWAMITHRA Operations Center</p>
+                    <p className="text-gray-600 text-sm sm:text-base">123 Agricultural Park</p>
+                    <p className="text-gray-600 text-sm sm:text-base">Hyderabad, Telangana 500001</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Business Hours */}
-            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Clock className="w-6 h-6 text-orange-500" />
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border border-gray-200">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500" />
                 Business Hours
               </h2>
               
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="font-medium text-gray-700">Monday - Friday</span>
-                  <span className="text-gray-900">9:00 AM - 6:00 PM</span>
+                  <span className="font-medium text-gray-700 text-sm sm:text-base">Monday - Friday</span>
+                  <span className="text-gray-900 text-sm sm:text-base">9:00 AM - 6:00 PM</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="font-medium text-gray-700">Saturday</span>
-                  <span className="text-gray-900">9:00 AM - 4:00 PM</span>
+                  <span className="font-medium text-gray-700 text-sm sm:text-base">Saturday</span>
+                  <span className="text-gray-900 text-sm sm:text-base">9:00 AM - 4:00 PM</span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="font-medium text-gray-700">Sunday</span>
-                  <span className="text-gray-500">Closed</span>
+                  <span className="font-medium text-gray-700 text-sm sm:text-base">Sunday</span>
+                  <span className="text-gray-500 text-sm sm:text-base">Closed</span>
                 </div>
               </div>
             </div>
 
-                      </div>
+                </div>
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Send className="w-6 h-6 text-green-500" />
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border border-gray-200">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+                <Send className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
                 Send us a Message
               </h2>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                       Your Name *
                     </label>
                     <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                       <input
                         type="text"
                         id="name"
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className={`w-full pl-10 pr-4 py-3 rounded-xl border ${
+                        className={`w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-xl border ${
                           errors.name ? 'border-red-300' : 'border-gray-300'
-                        } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200`}
+                        } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm sm:text-base`}
                         placeholder="John Doe"
                       />
                     </div>
                     {errors.name && (
-                      <p className="mt-2 text-sm text-red-600">{errors.name}</p>
+                      <p className="mt-2 text-xs sm:text-sm text-red-600">{errors.name}</p>
                     )}
                   </div>
 
@@ -225,21 +225,21 @@ const ContactUs: React.FC = () => {
                       Email Address *
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                       <input
                         type="email"
                         id="email"
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className={`w-full pl-10 pr-4 py-3 rounded-xl border ${
+                        className={`w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-xl border ${
                           errors.email ? 'border-red-300' : 'border-gray-300'
-                        } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200`}
+                        } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm sm:text-base`}
                         placeholder="john@example.com"
                       />
                     </div>
                     {errors.email && (
-                      <p className="mt-2 text-sm text-red-600">{errors.email}</p>
+                      <p className="mt-2 text-xs sm:text-sm text-red-600">{errors.email}</p>
                     )}
                   </div>
                 </div>
@@ -249,21 +249,21 @@ const ContactUs: React.FC = () => {
                     Phone Number *
                   </label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                     <input
                       type="tel"
                       id="phone"
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className={`w-full pl-10 pr-4 py-3 rounded-xl border ${
+                      className={`w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-xl border ${
                         errors.phone ? 'border-red-300' : 'border-gray-300'
-                      } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200`}
+                      } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-sm sm:text-base`}
                       placeholder="+91 98765 43210"
                     />
                   </div>
                   {errors.phone && (
-                    <p className="mt-2 text-sm text-red-600">{errors.phone}</p>
+                    <p className="mt-2 text-xs sm:text-sm text-red-600">{errors.phone}</p>
                   )}
                 </div>
 
@@ -276,19 +276,19 @@ const ContactUs: React.FC = () => {
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
-                    rows={6}
-                    className={`w-full px-4 py-3 rounded-xl border ${
+                    rows={5}
+                    className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border ${
                       errors.message ? 'border-red-300' : 'border-gray-300'
-                    } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 resize-none`}
+                    } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 resize-none text-sm sm:text-base`}
                     placeholder="Tell us how we can help you..."
                   />
                   {errors.message && (
-                    <p className="mt-2 text-sm text-red-600">{errors.message}</p>
+                    <p className="mt-2 text-xs sm:text-sm text-red-600">{errors.message}</p>
                   )}
                 </div>
 
                 {errors.submit && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm">
                     {errors.submit}
                   </div>
                 )}
@@ -296,16 +296,16 @@ const ContactUs: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-center gap-3"
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-center gap-3 text-sm sm:text-base"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       Sending...
                     </>
                   ) : (
                     <>
-                      <Send className="w-5 h-5" />
+                      <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                       Send Message
                     </>
                   )}
