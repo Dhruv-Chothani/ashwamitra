@@ -90,38 +90,38 @@ const AuthForm: React.FC<AuthFormProps> = ({ role, onBack }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "hsl(var(--background))" }}>
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6" style={{ background: "hsl(var(--background))" }}>
       <div className="w-full max-w-md">
-        <button onClick={onBack} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
+        <button onClick={onBack} className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground hover:text-foreground mb-4 sm:mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4" />
           Back to role selection
         </button>
 
-        <div className="bg-card rounded-2xl border border-border float-shadow p-8">
+        <div className="bg-card rounded-2xl border border-border float-shadow p-6 sm:p-8">
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 sm:mb-8">
             <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4"
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl mx-auto mb-3 sm:mb-4"
               style={{ background: config.lightColor }}
             >
               {config.emoji}
             </div>
-            <h1 className="font-display text-2xl font-bold text-foreground">
+            <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">
               {role === "customer" && mode === "register" ? "Create account" : "Welcome back"}
             </h1>
-            <p className="text-muted-foreground text-sm mt-1">
+            <p className="text-muted-foreground text-xs sm:text-sm mt-1">
               {config.label} Portal — {config.description}
             </p>
           </div>
 
           {/* Toggle - Only show for Customer and Admin roles */}
           {role === "customer" && (
-            <div className="flex rounded-lg p-1 mb-6" style={{ background: "hsl(var(--muted))" }}>
+            <div className="flex rounded-lg p-1 mb-4 sm:mb-6" style={{ background: "hsl(var(--muted))" }}>
               {(["login", "register"] as AuthMode[]).map((m) => (
                 <button
                   key={m}
                   onClick={() => setMode(m)}
-                  className="flex-1 py-2 text-sm font-medium rounded-md transition-all"
+                  className="flex-1 py-2 text-xs sm:text-sm font-medium rounded-md transition-all"
                   style={
                     mode === m
                       ? { background: "hsl(var(--card))", color: config.color, boxShadow: "var(--shadow-card)" }
@@ -136,13 +136,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ role, onBack }) => {
 
           {/* Error Display */}
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-xs sm:text-sm text-red-700">
               {error}
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             {mode === "register" && (
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium text-foreground">Full Name</Label>

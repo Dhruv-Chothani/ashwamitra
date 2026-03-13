@@ -46,18 +46,18 @@ const B2BDashboard: React.FC = () => {
   const tabFromUrl = searchParams.get("tab");
 
   useEffect(() => {
-    if (tabFromUrl && B2B_ALLOWED_TABS.has(tabFromUrl) && tabFromUrl !== activeTab) {
+    const tabFromUrl = searchParams.get("tab");
+    if (tabFromUrl && B2B_ALLOWED_TABS.has(tabFromUrl)) {
       setActiveTab(tabFromUrl);
     }
-  }, [tabFromUrl, activeTab]);
+  }, [searchParams]);
 
-  useEffect(() => {
-    if (searchParams.get("tab") !== activeTab) {
-      const next = new URLSearchParams(searchParams);
-      next.set("tab", activeTab);
-      setSearchParams(next, { replace: true });
-    }
-  }, [activeTab, searchParams, setSearchParams]);
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", newTab);
+    setSearchParams(next, { replace: true });
+  };
 
   const stats = dashboardData ? {
     totalPurchases: dashboardData.totalPurchases || 0,
@@ -71,7 +71,7 @@ const B2BDashboard: React.FC = () => {
   const handleCartUpdate = (newCart: Map<string, number>) => {
     setCart(newCart);
     if (newCart.size === 0 && cart.size > 0) {
-      setActiveTab("orders");
+      handleTabChange("orders");
     }
   };
 
@@ -85,20 +85,20 @@ const B2BDashboard: React.FC = () => {
   }
 
   return (
-    <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab}>
+    <DashboardLayout activeTab={activeTab} onTabChange={handleTabChange}>
       {activeTab === "dashboard" && (
-        <div className="space-y-8 p-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+        <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">B2B Procurement Dashboard</h1>
-              <p className="text-sm text-gray-500">Real-time farmer products and orders</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">B2B Procurement Dashboard</h1>
+              <p className="text-xs sm:text-sm text-gray-500">Real-time farmer products and orders</p>
             </div>
             <div className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg bg-green-100 text-green-700 font-medium shadow-sm">
               <Building2 className="w-4 h-4" /> Live Data
             </div>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               {[
                 { label: "Total Purchases", value: `₹${(stats.totalPurchases / 1000).toFixed(1)}L`, icon: ShoppingCart, color: "from-blue-500 to-indigo-600" },
                 { label: "Payments Made", value: `₹${(stats.paymentsMade / 1000).toFixed(1)}L`, icon: CreditCard, color: "from-emerald-500 to-green-600" },
@@ -107,42 +107,44 @@ const B2BDashboard: React.FC = () => {
               ].map((stat) => {
               const Icon = stat.icon;
               return (
-                <div key={stat.label} className={`p-6 rounded-xl text-white shadow-xl bg-gradient-to-br ${stat.color} hover:scale-[1.02] transition`}>
+                <div key={stat.label} className={`p-4 sm:p-6 rounded-xl text-white shadow-xl bg-gradient-to-br ${stat.color} hover:scale-[1.02] transition`}>
                   <div className="flex justify-between mb-4"><Icon className="w-5 h-5" /><ArrowUpRight className="w-4 h-4 opacity-70" /></div>
-                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <div className="text-xl sm:text-2xl font-bold">{stat.value}</div>
                   <div className="text-xs opacity-90 mt-1">{stat.label}</div>
                 </div>
               );
             })}
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-white/80 backdrop-blur-md border shadow-xl rounded-xl p-6">
+          <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="lg:col-span-2 bg-white/80 backdrop-blur-md border shadow-xl rounded-xl p-4 sm:p-6">
               <h3 className="font-semibold text-gray-800 mb-4">Recent Procurement</h3>
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={recentOrdersData?.map((order: any) => ({
-                  month: new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short' }),
-                  spend: order.totalAmount,
-                })) || []}>
-                  <CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip />
-                  <Bar dataKey="spend" fill="#2563eb" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="h-48 sm:h-64 lg:h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={recentOrdersData?.map((order: any) => ({
+                    month: new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short' }),
+                    spend: order.totalAmount,
+                  })) || []}>
+                    <CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip />
+                    <Bar dataKey="spend" fill="#2563eb" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-            <div className="bg-white/80 backdrop-blur-md border shadow-xl rounded-xl p-6">
+            <div className="bg-white/80 backdrop-blur-md border shadow-xl rounded-xl p-4 sm:p-6">
               <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-blue-600" /> Quick Actions</h3>
               <div className="space-y-3">
-                <button onClick={() => setActiveTab("products")} className="w-full p-3 bg-blue-50 rounded-lg text-left hover:bg-blue-100 transition">
+                <button onClick={() => handleTabChange("products")} className="w-full p-3 bg-blue-50 rounded-lg text-left hover:bg-blue-100 transition">
                   <div className="text-sm font-medium">Browse Products</div>
                   <div className="text-xs text-gray-500">Find farmer produce</div>
                 </button>
-                <button onClick={() => setActiveTab("cart")} className="w-full p-3 bg-green-50 rounded-lg text-left hover:bg-green-100 transition">
+                <button onClick={() => handleTabChange("cart")} className="w-full p-3 bg-green-50 rounded-lg text-left hover:bg-green-100 transition">
                   <div className="text-sm font-medium flex items-center gap-2">
                     Cart {cart.size > 0 && <span className="bg-red-500 text-white text-xs px-1.5 rounded-full">{cart.size}</span>}
                   </div>
                   <div className="text-xs text-gray-500">View your bulk cart</div>
                 </button>
-                <button onClick={() => setActiveTab("orders")} className="w-full p-3 bg-purple-50 rounded-lg text-left hover:bg-purple-100 transition">
+                <button onClick={() => handleTabChange("orders")} className="w-full p-3 bg-purple-50 rounded-lg text-left hover:bg-purple-100 transition">
                   <div className="text-sm font-medium">My Orders</div>
                   <div className="text-xs text-gray-500">Track deliveries</div>
                 </button>
@@ -152,31 +154,31 @@ const B2BDashboard: React.FC = () => {
 
           {/* Recent Orders Table */}
           <div className="bg-white/80 backdrop-blur-md border shadow-xl rounded-xl">
-            <div className="p-5 border-b flex justify-between items-center">
+            <div className="p-4 sm:p-5 border-b flex justify-between items-center">
               <h3 className="font-semibold text-gray-800">Recent Orders</h3>
-              <button onClick={() => setActiveTab("orders")} className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg">View All</button>
+              <button onClick={() => handleTabChange("orders")} className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg">View All</button>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50">
                   <tr>
                     {["Order ID", "Product", "Amount", "Date", "Status"].map((h) => (
-                      <th key={h} className="text-left px-5 py-3 text-gray-500 font-medium text-xs">{h}</th>
+                      <th key={h} className="text-left px-3 sm:px-5 py-3 text-gray-500 font-medium text-xs">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {recentOrdersData.map((order: any) => (
                     <tr key={order._id} className="border-t hover:bg-blue-50/60 transition">
-                      <td className="px-5 py-3 text-xs font-mono">{order._id?.slice(-8)}</td>
-                      <td className="px-5 py-3 font-medium">{order.items?.[0]?.productName || "Product"}</td>
-                      <td className="px-5 py-3 font-semibold">₹{order.totalAmount}</td>
-                      <td className="px-5 py-3 text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</td>
-                      <td className="px-5 py-3">{orderStatus(order.status || "Pending")}</td>
+                      <td className="px-3 sm:px-5 py-3 text-xs font-mono">{order._id?.slice(-8)}</td>
+                      <td className="px-3 sm:px-5 py-3 font-medium">{order.items?.[0]?.productName || "Product"}</td>
+                      <td className="px-3 sm:px-5 py-3 font-semibold">₹{order.totalAmount}</td>
+                      <td className="px-3 sm:px-5 py-3 text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</td>
+                      <td className="px-3 sm:px-5 py-3">{orderStatus(order.status || "Pending")}</td>
                     </tr>
                   ))}
                   {recentOrdersData.length === 0 && (
-                    <tr><td colSpan={5} className="px-5 py-8 text-center text-gray-400">No orders yet</td></tr>
+                    <tr><td colSpan={5} className="px-3 sm:px-5 py-8 text-center text-gray-400">No orders yet</td></tr>
                   )}
                 </tbody>
               </table>
@@ -186,13 +188,13 @@ const B2BDashboard: React.FC = () => {
       )}
 
       {activeTab === "orders" && <Orders />}
-      {activeTab === "products" && <Products cart={cart} onUpdateCart={setCart} onGoToCart={() => setActiveTab("cart")} />}
+      {activeTab === "products" && <Products cart={cart} onUpdateCart={setCart} onGoToCart={() => handleTabChange("cart")} />}
       {activeTab === "cart" && (
         <B2BCart
           cart={cart}
           products={allProducts || []}
           onUpdateCart={handleCartUpdate}
-          onGoToOrders={() => setActiveTab("orders")}
+          onGoToOrders={() => handleTabChange("orders")}
         />
       )}
       {activeTab === "payments" && <Payments />}

@@ -54,31 +54,31 @@ const Hero: React.FC = () => {
       />
       <div className="absolute inset-0 bg-gradient-to-br from-green-900/90 to-green-800/70" />
 
-      <div className="relative max-w-6xl mx-auto px-4 py-20 w-full">
-        <div className="max-w-2xl">
-          <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6">
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 w-full">
+        <div className="max-w-3xl lg:max-w-2xl">
+          <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
             Connecting Farmers
-            <span className="block text-yellow-400">
+            <span className="block text-yellow-400 text-2xl sm:text-3xl lg:text-5xl mt-1 sm:mt-2">
               Directly to Markets
             </span>
           </h2>
 
-          <p className="text-lg text-green-100 mb-10">
+          <p className="text-base sm:text-lg text-green-100 mb-8 sm:mb-10 leading-relaxed">
             Empowering farmers, businesses, and customers through a transparent
             and fair agricultural marketplace platform.
           </p>
 
           {/* Login Buttons */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 mb-8 sm:mb-12">
             {loginButtons.map((btn) => {
               const Icon = btn.icon;
               return (
                 <button
                   key={btn.id}
                   onClick={() => navigate(btn.path)}
-                  className={`flex items-center justify-center gap-2 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:border hover:border-yellow-400 ${btn.color}`}
+                  className={`flex items-center justify-center gap-2 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:border hover:border-yellow-400 text-sm sm:text-base ${btn.color}`}
                 >
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                   {btn.label}
                 </button>
               );
@@ -86,16 +86,16 @@ const Hero: React.FC = () => {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="text-center bg-white/10 backdrop-blur rounded-xl p-3 border border-white/20"
+                className="text-center bg-white/10 backdrop-blur rounded-xl p-3 sm:p-4 border border-white/20"
               >
-                <div className="text-yellow-400 font-bold text-lg">
+                <div className="text-yellow-400 font-bold text-base sm:text-lg">
                   {stat.value}
                 </div>
-                <div className="text-xs text-green-100">
+                <div className="text-xs sm:text-sm text-green-100">
                   {stat.label}
                 </div>
               </div>

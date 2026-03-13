@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import {
   Search, MapPin, Home, ShoppingCart, Package, User, LogOut, CheckCircle,
-  Loader2, Star, Truck, Plus, Minus,
+  Loader2, Star, Truck, Plus, Minus, Menu, X,
 } from "lucide-react";
 import { useProducts } from "@/hooks/useApi";
 import CartComponent from "./components/CartComponent";
@@ -36,6 +36,7 @@ export default function CustomerDashboard() {
   const [showCartNotification, setShowCartNotification] = useState(false);
   const [addedProduct, setAddedProduct] = useState<string>("");
   const [showOrderSuccess, setShowOrderSuccess] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { data: products, isLoading, error } = useProducts();
 
@@ -131,9 +132,18 @@ export default function CustomerDashboard() {
       {/* TOP NAVBAR */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-green-100">
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="flex items-center gap-2 text-green-700 font-medium">
-            <MapPin className="w-4 h-4" />
-            Delivering to Hyderabad
+          <div className="flex items-center justify-between sm:justify-start gap-2">
+            <div className="flex items-center gap-2 text-green-700 font-medium">
+              <MapPin className="w-4 h-4" />
+              <span className="hidden sm:inline">Delivering to Hyderabad</span>
+              <span className="sm:hidden">Hyderabad</span>
+            </div>
+            <button 
+              className="sm:hidden p-1 rounded-lg hover:bg-green-100"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
           <div className="relative w-full sm:w-96">
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
@@ -164,6 +174,49 @@ export default function CustomerDashboard() {
             </button>
           </div>
         </div>
+        
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="sm:hidden border-t border-green-100 bg-white/90 backdrop-blur-md">
+            <div className="px-4 py-3 space-y-2">
+              <button 
+                onClick={() => { setActiveTab("shop"); setMobileMenuOpen(false); }}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${activeTab === "shop" ? "bg-green-100 text-green-700" : "text-gray-600 hover:bg-green-50"}`}
+              >
+                <Home size={18} /> Shop
+              </button>
+              <button 
+                onClick={() => { setActiveTab("orders"); setMobileMenuOpen(false); }}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${activeTab === "orders" ? "bg-green-100 text-green-700" : "text-gray-600 hover:bg-green-50"}`}
+              >
+                <Package size={18} /> Orders
+              </button>
+              <button 
+                onClick={() => { setActiveTab("cart"); setMobileMenuOpen(false); }}
+                className={`w-full relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${activeTab === "cart" ? "bg-green-100 text-green-700" : "text-gray-600 hover:bg-green-50"}`}
+              >
+                <ShoppingCart size={18} /> Cart
+                {getCartItemsCount() > 0 && (
+                  <span className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {getCartItemsCount()}
+                  </span>
+                )}
+              </button>
+              <button 
+                onClick={() => { setActiveTab("profile"); setMobileMenuOpen(false); }}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${activeTab === "profile" ? "bg-green-100 text-green-700" : "text-gray-600 hover:bg-green-50"}`}
+              >
+                <User size={18} /> Profile
+              </button>
+              <button 
+                onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50"
+              >
+                <LogOut size={18} /> Logout
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* MAIN CONTENT */}

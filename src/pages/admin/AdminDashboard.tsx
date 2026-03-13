@@ -58,16 +58,16 @@ const AdminDashboard: React.FC = () => {
   return (
     <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab}>
       {activeTab === "dashboard" && (
-        <div className="space-y-6">
-          <div className="flex items-start justify-between">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
-              <h1 className="font-display text-2xl font-bold text-foreground">Admin Control Panel</h1>
-              <p className="text-muted-foreground text-sm">Real-time platform data from database</p>
+              <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Admin Control Panel</h1>
+              <p className="text-muted-foreground text-xs sm:text-sm">Real-time platform data from database</p>
             </div>
             <button
               onClick={() => exportReport.mutate("users")}
               disabled={exportReport.isPending}
-              className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className="flex items-center gap-2 text-xs sm:text-sm font-medium px-3 sm:px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               <Download className="w-4 h-4" />
               {exportReport.isPending ? "Exporting..." : "Export Report"}
@@ -75,7 +75,7 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {[
               { label: "Farmers", value: stats.totalFarmers || 0, icon: Wheat, color: "from-green-500 to-emerald-600" },
               { label: "Businesses", value: stats.totalBusinesses || 0, icon: Building2, color: "from-blue-500 to-indigo-600" },
@@ -84,12 +84,12 @@ const AdminDashboard: React.FC = () => {
             ].map((s) => {
               const Icon = s.icon;
               return (
-                <div key={s.label} className={`p-5 rounded-xl text-white shadow-xl bg-gradient-to-br ${s.color}`}>
+                <div key={s.label} className={`p-4 sm:p-5 rounded-xl text-white shadow-xl bg-gradient-to-br ${s.color}`}>
                   <div className="flex justify-between mb-3">
                     <Icon className="w-5 h-5" />
                     <ArrowUpRight className="w-4 h-4 opacity-70" />
                   </div>
-                  <div className="text-2xl font-bold">{s.value}</div>
+                  <div className="text-xl sm:text-2xl font-bold">{s.value}</div>
                   <div className="text-xs opacity-90">{s.label}</div>
                 </div>
               );
@@ -97,38 +97,40 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Additional Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white border rounded-xl p-4">
-              <p className="text-sm text-gray-500">Total Orders</p>
-              <p className="text-2xl font-bold">{stats.totalOrders || 0}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="bg-white border rounded-xl p-3 sm:p-4">
+              <p className="text-xs sm:text-sm text-gray-500">Total Orders</p>
+              <p className="text-xl sm:text-2xl font-bold">{stats.totalOrders || 0}</p>
             </div>
-            <div className="bg-white border rounded-xl p-4">
-              <p className="text-sm text-gray-500">Total Products</p>
-              <p className="text-2xl font-bold">{stats.totalProducts || 0}</p>
+            <div className="bg-white border rounded-xl p-3 sm:p-4">
+              <p className="text-xs sm:text-sm text-gray-500">Total Products</p>
+              <p className="text-xl sm:text-2xl font-bold">{stats.totalProducts || 0}</p>
             </div>
-            <div className="bg-white border rounded-xl p-4">
-              <p className="text-sm text-gray-500">Pending Approvals</p>
-              <p className="text-2xl font-bold text-yellow-600">{stats.pendingApprovals || 0}</p>
+            <div className="bg-white border rounded-xl p-3 sm:p-4">
+              <p className="text-xs sm:text-sm text-gray-500">Pending Approvals</p>
+              <p className="text-xl sm:text-2xl font-bold text-yellow-600">{stats.pendingApprovals || 0}</p>
             </div>
-            <div className="bg-white border rounded-xl p-4">
-              <p className="text-sm text-gray-500">Pending Farmers</p>
-              <p className="text-2xl font-bold text-orange-600">{stats.pendingFarmers || 0}</p>
+            <div className="bg-white border rounded-xl p-3 sm:p-4">
+              <p className="text-xs sm:text-sm text-gray-500">Pending Farmers</p>
+              <p className="text-xl sm:text-2xl font-bold text-orange-600">{stats.pendingFarmers || 0}</p>
             </div>
           </div>
 
           {/* Monthly Trend Chart */}
           {stats.monthlyTrend && stats.monthlyTrend.length > 0 && (
-            <div className="bg-white border rounded-xl p-6 shadow-sm">
+            <div className="bg-white border rounded-xl p-4 sm:p-6 shadow-sm">
               <h3 className="font-semibold mb-4">Monthly Transaction Volume</h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={stats.monthlyTrend.map((m: any) => ({ month: `M${m._id}`, volume: m.volume, count: m.count }))}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip formatter={(v: number) => `₹${v.toLocaleString()}`} />
-                  <Bar dataKey="volume" fill="#16a34a" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="h-64 sm:h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats.monthlyTrend.map((m: any) => ({ month: `M${m._id}`, volume: m.volume, count: m.count }))}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip formatter={(v: number) => `₹${v.toLocaleString()}`} />
+                    <Bar dataKey="volume" fill="#16a34a" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           )}
 
